@@ -19,17 +19,16 @@ var LocalStrategy = require('passport-local').Strategy;
 
 var localStorage = require('localStorage')
 
-// var User = require('./models.js').User
 var axios = require('axios')
 
 var Sequelize = require('sequelize')
 var { sequelize, User, Playlist, Song } = require('./backend/sequel.js')
 
-// var mongoose = require('mongoose');
-// mongoose.connection.on('connected', function() {
-//   console.log('Connected to MongoDB!');
-// });
-// mongoose.connect(process.env.MONGODB_URI);
+var mongoose = require('mongoose');
+mongoose.connection.on('connected', function() {
+  console.log('Connected to MongoDB!');
+});
+mongoose.connect(process.env.MONGODB_URI);
 
 var crypto = require('crypto');
 function hashPassword(password) {
@@ -44,39 +43,39 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname + '/public'))
 .use(cookieParser());
 
-// app.use(session({
-//   secret: process.env.SECRET,
-//   store: new MongoStore({mongooseConnection: mongoose.connection})
-// }));
-//
-// passport.use(new LocalStrategy(
-//   function(username, password, done) {
-//     var hashedPassword = hashPassword(password);
-//     User.findOne({username: username}, function(err, user) {
-//       if (err) return done(err);
-//       if (!user) return done(null, false, { message: 'Invalid Username.'});
-//       if (user.password !== hashedPassword) return done(null, false, { message: 'Wrong Password.'});
-//       return done(null, user);
-//     })
-//   })
-// )
-//
-// passport.serializeUser(function(user, done) {
-//   done(null, user._id);
-// })
-//
-// passport.deserializeUser(function(id, done) {
-//   User.findById(id, function(err, user) {
-//     if (err) {
-//       console.log('Error deserializing', err);
-//     } else {
-//       done(null, user);
-//     }
-//   })
-// })
-//
-// app.use(passport.initialize());
-// app.use(passport.session());
+app.use(session({
+  secret: process.env.SECRET,
+  store: new MongoStore({mongooseConnection: mongoose.connection})
+}));
+
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    var hashedPassword = hashPassword(password);
+    User.findOne({username: username}, function(err, user) {
+      if (err) return done(err);
+      if (!user) return done(null, false, { message: 'Invalid Username.'});
+      if (user.password !== hashedPassword) return done(null, false, { message: 'Wrong Password.'});
+      return done(null, user);
+    })
+  })
+)
+
+passport.serializeUser(function(user, done) {
+  done(null, user._id);
+})
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    if (err) {
+      console.log('Error deserializing', err);
+    } else {
+      done(null, user);
+    }
+  })
+})
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get('/', (request, response) => {
   response.sendFile(__dirname + 'public/index.html'); // For React/Redux
