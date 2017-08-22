@@ -102,8 +102,8 @@ var generateRandomString = function(length) {
 var stateKey = 'spotify_auth_state';
 
 app.get('/load', function(req, res) {
-  
-}
+
+})
 
 app.get('/login', function(req, res) {
   var state = generateRandomString(16);
