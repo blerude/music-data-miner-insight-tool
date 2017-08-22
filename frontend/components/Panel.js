@@ -301,7 +301,7 @@ class Panel extends React.Component {
           <button
             className="submit smaller"
             onClick={() => this.load()}>
-            Playlist Data Download (once)
+            Download Playlist Data (once)
           </button>
         </div>
         <Link to="/home">
