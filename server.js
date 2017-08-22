@@ -84,7 +84,6 @@ app.get('/', (request, response) => {
 
 app.use('/api', api);
 
-
 /**
 * Generates a random string containing numbers and letters
 * @param  {number} length The length of the string
