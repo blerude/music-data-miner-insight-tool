@@ -45,7 +45,8 @@ const Playlist = sequelize.define('playlist', {
   tracks_string: Sequelize.STRING,
   tracks_number: Sequelize.INTEGER,
   type: Sequelize.STRING,
-  uri: Sequelize.STRING
+  uri: Sequelize.STRING,
+  followers: Sequelize.NUMBER
 });
 
 const Song = sequelize.define('song', {

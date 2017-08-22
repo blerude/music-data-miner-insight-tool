@@ -96,6 +96,7 @@ body {
 }
 .smaller:hover {
   font-size: 12px;
+  background-color: #9cd0e2;
 }
 .link {
   font-size: 12px;
