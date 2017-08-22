@@ -25,7 +25,7 @@ class Panel extends React.Component {
     $('#query').hide();
     axios({
       method: 'get',
-      url: 'http://localhost:3000/getTotal'
+      url: '/getTotal'
     })
     .then(response => {
       this.setState({name: this.props.match.params.name, total: response.data.total})
@@ -74,7 +74,7 @@ class Panel extends React.Component {
 
     axios({
       method: 'post',
-      url: 'http://localhost:3000/retrieve',
+      url: '/retrieve',
       data: {
         search: search
       }
@@ -105,7 +105,7 @@ class Panel extends React.Component {
   load() {
     axios({
       method: 'get',
-      url: 'http://localhost:3000/load'
+      url: '/load'
     })
     .then(() => {
       console.log('Done loading')
@@ -297,11 +297,11 @@ class Panel extends React.Component {
             </div>
           </div>
           <br/>
-          <button
+          {/* <button
             className="submit smaller"
             onClick={() => this.load()}>
             (Re)Load Playlist Data
-          </button>
+          </button> */}
         </div>
         <Link to="/home">
           <text className="btn login home">
