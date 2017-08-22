@@ -9,8 +9,8 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var client_id = process.env.SPOTIFY_ID; // Your client id
 var client_secret = process.env.SPOTIFY_SECRET; // Your secret
-// var redirect_uri = 'http://localhost:'+PORT+'/callback'; // Your redirect uri
-var redirect_uri = 'https://musicdataminer.herokuapp.com/callback' // Redirect on heroku
+var redirect_uri = 'http://localhost:'+PORT+'/callback'; // Your redirect uri
+// var redirect_uri = 'https://musicdataminer.herokuapp.com/callback' // Redirect on heroku
 
 var bodyParser = require('body-parser');
 var session = require('express-session');
@@ -102,7 +102,112 @@ var generateRandomString = function(length) {
 var stateKey = 'spotify_auth_state';
 
 app.get('/load', function(req, res) {
-
+  console.log('LOADING...')
+  // CLEAR PLAYLIST AND TRACK DATABASE
+  Playlist.drop().then(() => {
+    Song.drop().then(() => {
+      // Find the user
+      User.findOne().then(user => {
+        axios({
+          method: 'get',
+          url: `https://api.spotify.com/v1/users/spotify/playlists`,
+          headers: {
+            Authorization: `Bearer ${user.access}`
+          }
+        })
+        .then(response => {
+          // Begin to extract all Spotify playlists
+          var offset = 0;
+          var total = response.data.total
+          var limit = 50;
+          // Iterate through all playlists in increments of 50
+          var promiseArray = [];
+          while (offset < total) {
+            promiseArray.push(
+              axios({
+                method: 'get',
+                url: `https://api.spotify.com/v1/users/spotify/playlists?offset=${offset}&limit=${limit}`,
+                headers: {
+                  Authorization: `Bearer ${user.access}`
+                }
+              })
+              .catch(err => {
+                console.log('Error retrieving all playlists', err)
+              })
+            )
+            offset = offset + limit;
+          }
+          // Once all playlist groups have been fetched, store each in a database
+          Promise.all(promiseArray)
+          .then(promiseResponse => {
+            console.log('ALL PLAYLISTS HAVE BEEN PULLED', promiseResponse.length)
+            var playlistPromises = []
+            promiseResponse.forEach(promise => {
+              playlistPromises = playlistPromises.concat(promise.data.items.map((item, i) => {
+                return Playlist.sync()
+                .then(() => {
+                  Playlist.create({
+                    collaborative: item.collaborative,
+                    href: item.href,
+                    key: item.id,
+                    name: item.name,
+                    owner: item.owner,
+                    public: item.public,
+                    snapshot_id: item.snapshot_id,
+                    tracks_string: item.tracks.href,
+                    tracks_number: item.tracks.total,
+                    type: item.type,
+                    uri: item.uri
+                  })
+                  .catch(err => {
+                    console.log('Error creating playlist', err)
+                  })
+                })
+                .catch(err => {
+                  console.log('Error syncing item creation', err)
+                })
+              }))
+            })
+            // Once all the playlists have been stored, store each track
+            Promise.all(playlistPromises)
+            .then(playlistResponse => {
+              console.log('ALL PLAYLISTS HAVE BEEN CREATED', playlistResponse.length)
+              var totalTracks = 0;
+              var songPromises = [];
+              Playlist.findAll().then(items => {
+                console.log('THE LENGTH IS', items.length)
+                var ind = 0;
+                var interval = setInterval(() => {
+                  if (ind >= items.length) {
+                    clearInterval(interval);
+                  } else {
+                    item = items[ind]
+                    songSaverLoop(item, ind, user, totalTracks)
+                    ind = ind + 1;
+                  }
+                }, 2000)
+              })
+              .catch(err => {
+                console.log('Error finding all playlists', err)
+              })
+            })
+            .catch(err => {
+              console.log('Error in playlist storing promise chain', err)
+            })
+          })
+          .catch(err => {
+            console.log('Error in playlist fetching promise chain', err)
+          })
+        })
+        .catch(err => {
+          console.log('Error fetching all playlists', err)
+        })
+      })
+      .catch(err => {
+        console.log('Error finding user', err)
+      })
+    })
+  })
 })
 
 app.get('/login', function(req, res) {

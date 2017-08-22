@@ -28,6 +28,7 @@ class Panel extends React.Component {
       url: '/getTotal'
     })
     .then(response => {
+      console.log('name: ' + this.props.match.params.name)
       this.setState({name: this.props.match.params.name, total: response.data.total})
     })
     .catch(err => {
@@ -297,11 +298,11 @@ class Panel extends React.Component {
             </div>
           </div>
           <br/>
-          {/* <button
+          <button
             className="submit smaller"
             onClick={() => this.load()}>
-            (Re)Load Playlist Data
-          </button> */}
+            Playlist Data Download (once)
+          </button>
         </div>
         <Link to="/home">
           <text className="btn login home">

@@ -9,7 +9,7 @@ const Home = () => {
         Welcome! Log in with <text style={{'color': '#84bd00'}}>Spotify</text> to start analyzing.
       </p>
       <a href="/login" className="btn login">
-      Log in with <text style={{'color': '#84bd00'}}>Spotify</text>
+      Log in with <text style={{'color': '#84bd00', 'backgroundColor': 'black', 'borderRadius': '5px', 'padding': '3px'}}>Spotify</text>
     </a>
     <br/>
   </div>
