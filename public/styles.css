@@ -1,0 +1,385 @@
+/*
+MY COLOR SCHEME:
+Cal Poly Pomona Green:  #26532B
+Sea Green:              #399E5A
+Verdigris:              #5ABCB9
+Medium Aquamarine:      #63E2C6
+Electric Blue:          #6EF9F5
+*/
+
+/* MAIN classes */
+body {
+  margin: 10px;
+  padding: 10px;
+  background-color: black;
+}
+.container {
+  background-color: #84bd00;
+  padding: 1px;
+}
+.main {
+  text-align: center;
+  background-color: black;
+  /*border: 5px solid #ba2a2a;*/
+  border: 5px solid #84bd00;
+  border-radius: 50px;
+  width: 100%;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.title {
+  text-align: center;
+  font-weight: bold;
+  font-family: 'Muli', sans-serif;
+  color: white;
+}
+.title:hover {
+  color: #84bd00;
+}
+
+/* Home page classes */
+.textBody {
+  text-align: center;
+  font-family: 'Muli', sans-serif;
+  color: white;
+  padding: 5px;
+}
+.login {
+  background-color: black;
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.login:hover {
+  /*border: 1px solid #ba2a2a;*/
+  border: 1px solid #84bd00;
+  color: white;
+}
+
+/* Panel classes */
+.panel {
+  background-color: white;
+  /*border: 3px solid #ba2a2a;*/
+  border: 3px solid #84bd00;
+  padding: 10px;
+  border-radius: 5px;
+}
+.text {
+  margin-right: 10px;
+  margin-left: 10px;
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  font-family: 'Muli', sans-serif;
+  border: 2px solid #84bd00;
+}
+.submit {
+  /*background-color: #dd4040;*/
+  background-color: black;
+  border: 1px solid #84bd00;
+  border-radius: 6px;
+  font-family: 'Muli', sans-serif;
+  color: #84bd00;
+}
+.submit:hover {
+  font-size: 16px;
+}
+.smaller {
+  background-color: white;
+  border: 1px solid #84bd00;
+  border-radius: 6px;
+  font-family: 'Muli', sans-serif;
+  color: #84bd00;
+  font-size: 10px;
+}
+.smaller:hover {
+  font-size: 12px;
+}
+.link {
+  font-size: 12px;
+  border: 1px solid white;
+  border-radius: 3px;
+  padding: 3px;
+  font-family: 'Muli', sans-serif;
+  color: white;
+}
+.link:hover {
+  /*border: 1px solid #ba2a2a;*/
+  border: 1px solid #84bd00;
+}
+.home {
+  font-size: 12px;
+  margin-right: 5px;
+}
+.green {
+  color: #84bd00
+}
+
+/* Query result classes */
+.result {
+  font-family: 'Muli', sans-serif;
+  color: black;
+  font-size: 17px;
+  font-weight: bold;
+}
+.searchResult {
+  font-family: 'Muli', sans-serif;
+  color: #84bd00;
+  font-size: 16px;
+  font-weight: bold;
+}
+.up {
+  /*text-transform: uppercase;*/
+  font-weight: bolder;
+}
+.resultCountBox {
+  flex: 1;
+  background-color: black;
+  border: 4px solid #84bd00;
+  color: #84bd00;
+  border-radius: 4px;
+  padding: 4px;
+  width: 50%;
+  margin: 10px;
+}
+.resultBox {
+  display: flex;
+}
+.resultCountContainer {
+  display: flex;
+}
+.list {
+  flex: 1;
+  margin: 10px;
+  padding-top: 15px;
+  padding-bottom: 10px;
+  border: 3px solid black;
+  border-radius: 3px;
+  background-color: #84bd00;
+  height: 250px;
+  overflow: scroll;
+}
+.listHeader {
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+  font-family: 'Muli', sans-serif;
+}
+.listItem {
+  color: white;
+  font-family: 'Muli', sans-serif;
+  font-weight: bold;
+  font-size: 16px;
+}
+.listExtra {
+  color: black;
+  font-family: 'Muli', sans-serif;
+}
+.position {
+  color: #84bd00;
+  font-family: 'Muli', sans-serif;
+  font-size: 10;
+}
+.left {
+  text-align: left;
+  font-size: 14px;
+}
+
+/* DROPDOWN */
+.returnItem {
+  padding: 8px;
+
+}
+.dropbtn {
+    background-color: #84bd00;
+    color: black;
+    padding: 4px;
+    padding-right: 7px;
+    padding-left: 7px;
+    font-size: 12px;
+    border: 1px solid black;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 75%;
+}
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+    display: none;
+    background-color: #84bd00;
+    font-size: 11px;
+    text-align: center;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    width: 75%;
+}
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: black;
+    border: 1px solid black;
+    background-color: white;
+    border-radius: 5px;
+    padding: 7px;
+    text-decoration: none;
+    display: block;
+}
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #f1f1f1}
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+/* Change the background color of the dropdown button when the dropdown content is shown */
+/*.dropdown:hover .dropbtn {
+    background-color: white;
+}*/
+
+/* LOADING ANIMATION */
+#cssload-cupcake {
+	flex-direction: row;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
+}
+.cssload-letter {
+	font-size: 18px;
+	/*color: #84bd00;*/
+  color: black
+	font-family: 'Muli', sans-serif;
+}
+.cssload-box {
+	display: flex;
+}
+.cssload-cupcakeCircle,
+.cssload-cupcakeInner,
+.cssload-cupcakeCore {
+	border-radius: 50%;
+}
+.cssload-cupcake,
+.cssload-letter,
+.cssload-cupcakeCircle,
+.cssload-cupcakeInner,
+.cssload-cupcakeCore {
+	flex: none;
+}
+.cssload-letter,
+.cssload-cupcakeCircle {
+	align-self: center;
+	align-self: center;
+}
+.cssload-cupcakeCircle {
+	align-items: center;
+	justify-content: center;
+	height: 18px;
+	width: 18px;
+	background-color: #84bd00;
+  font-family: 'Muli', sans-serif;
+}
+.cssload-cupcakeInner {
+	align-self: center;
+	justify-content: center;
+	height: 50%;
+	width: 50%;
+	background-color: rgb(255,255,255);
+	animation-name: cssload-cupcakeAnimate;
+	animation-duration: 575ms;
+	animation-direction: alternate;
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: infinite;
+}
+.cssload-cupcakeCore {
+	align-self: center;
+	height: 25%;
+	width: 25%;
+	background-color: #84bd00;
+	animation-name: coreAnimate;
+	animation-duration: 1.15s;
+	animation-direction: alternate;
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: infinite;
+}
+@keyframes cssload-cupcakeAnimate {
+	to {
+		height: 90%;
+		width: 90%;
+	}
+}
+@keyframes coreAnimate {
+	to {
+		height: 90%;
+		width: 90%;
+	}
+}
+
+/* LOADING ANIMATION */
+#fountainG{
+	position:relative;
+	width:234px;
+	height:28px;
+	margin:auto;
+}
+.fountainG{
+	position:absolute;
+	top:0;
+	background-color:#84bd00;
+	width:20px;
+	height:20px;
+	animation-name:bounce_fountainG;
+	animation-duration:1.5s;
+	animation-iteration-count:infinite;
+	animation-direction:normal;
+	transform:scale(.3);
+	border-radius:19px;
+}
+#fountainG_1{
+	left:0;
+	animation-delay:0.6s;
+}
+#fountainG_2{
+	left:29px;
+	animation-delay:0.75s;
+}
+#fountainG_3{
+	left:58px;
+	animation-delay:0.9s;
+}
+#fountainG_4{
+	left:88px;
+	animation-delay:1.05s;
+}
+#fountainG_5{
+	left:117px;
+	animation-delay:1.2s;
+}
+#fountainG_6{
+	left:146px;
+	animation-delay:1.35s;
+}
+#fountainG_7{
+	left:175px;
+	animation-delay:1.5s;
+}
+#fountainG_8{
+	left:205px;
+	animation-delay:1.64s;
+}
+@keyframes bounce_fountainG{
+	0%{
+	transform:scale(1);
+		background-color:#84bd00;
+	}
+	100%{
+	transform:scale(.3);
+		background-color:rgb(255,255,255);
+	}
+}
