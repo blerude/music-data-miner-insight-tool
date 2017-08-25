@@ -17,7 +17,8 @@ class Panel extends React.Component {
       listCount: '',
       songs: [],
       playlists: [],
-      total: ''
+      total: '',
+      followers: 0
     }
   }
 
@@ -29,7 +30,7 @@ class Panel extends React.Component {
     })
     .then(response => {
       console.log('name: ' + this.props.match.params.name)
-      this.setState({name: this.props.match.params.name, total: response.data.total})
+      this.setState({name: this.props.match.params.name, total: response.data.total, followers: response.data.followers})
     })
     .catch(err => {
       console.log('Error getting total playlist count', err)
@@ -124,7 +125,7 @@ class Panel extends React.Component {
   };
 
   render() {
-    console.log(this.state.playlists)
+    console.log(this.state.total)
     var string = ""
     if (this.state.query.song && this.state.query.album) {
       string = "\"" + this.state.query.song + "\" from " + this.state.query.album + " by "
@@ -251,7 +252,8 @@ class Panel extends React.Component {
                                 song.c.map((playlist, j) => {
                                   return <a key={j}>
                                       <text className="listExtra">{playlist.n}</text><br/>
-                                      <text className="position">{"Position: " + playlist.pos}</text>
+                                      <text className="position">{"Position: " + playlist.pos}</text><br/>
+                                      <text className="position">{"Popularity: " + playlist.popu}</text>
                                     </a>
                                 })
                               }
@@ -283,7 +285,8 @@ class Panel extends React.Component {
                                 list.e.map((song, j) => {
                                   return <a key={j}>
                                       <text className="listExtra">{song.n}</text><br/>
-                                      <text className="position">{"Position: " + song.pos}</text>
+                                      <text className="position">{"Position: " + song.pos}</text><br/>
+                                      <text className="position">{"Popularity: " + song.popu }</text>
                                     </a>
                                 })
                               }

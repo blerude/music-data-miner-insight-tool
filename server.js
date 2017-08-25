@@ -23,6 +23,9 @@ var localStorage = require('localStorage')
 var axios = require('axios')
 
 var Sequelize = require('sequelize')
+// var User = require('./models/user.js')
+// var Playlist = require('./models/playlist.js')
+// var Song = require('./models/song.js')
 var { sequelize, User, Playlist, Song } = require('./backend/sequel.js')
 
 var mongoose = require('mongoose');
@@ -104,113 +107,106 @@ var stateKey = 'spotify_auth_state';
 app.get('/load', function(req, res) {
   console.log('LOADING...')
   // CLEAR PLAYLIST AND TRACK DATABASE
-  Playlist.findAll().then(lists => {
-    
+  Playlist.drop().then(() => {
+    Song.drop().then(() => {
+      // Find the user
+      User.findOne().then(user => {
+        axios({
+          method: 'get',
+          url: `https://api.spotify.com/v1/users/spotify/playlists`,
+          headers: {
+            Authorization: `Bearer ${user.access}`
+          }
+        })
+        .then(response => {
+          // Begin to extract all Spotify playlists
+          var offset = 0;
+          var total = response.data.total
+          var limit = 50;
+          // Iterate through all playlists in increments of 50
+          var promiseArray = [];
+          while (offset < total) {
+            promiseArray.push(
+              axios({
+                method: 'get',
+                url: `https://api.spotify.com/v1/users/spotify/playlists?offset=${offset}&limit=${limit}`,
+                headers: {
+                  Authorization: `Bearer ${user.access}`
+                }
+              })
+              .catch(err => {
+                console.log('Error retrieving all playlists', err)
+              })
+            )
+            offset = offset + limit;
+          }
+          // Once all playlist groups have been fetched, store each in a database
+          Promise.all(promiseArray)
+          .then(promiseResponse => {
+            console.log('ALL PLAYLISTS HAVE BEEN PULLED', promiseResponse.length)
+            var playlistPromises = []
+            promiseResponse.forEach(promise => {
+              playlistPromises = playlistPromises.concat(promise.data.items.map((item, i) => {
+                return Playlist.sync()
+                .then(() => {
+                  Playlist.create({
+                    href: item.href,
+                    key: item.id,
+                    name: item.name,
+                    owner: item.owner,
+                    tracks_string: item.tracks.href,
+                    tracks_number: item.tracks.total,
+                    uri: item.uri
+                  })
+                  .catch(err => {
+                    console.log('Error creating playlist', err)
+                  })
+                })
+                .catch(err => {
+                  console.log('Error syncing item creation', err)
+                })
+              }))
+            })
+            // Once all the playlists have been stored, store each track
+            Promise.all(playlistPromises)
+            .then(playlistResponse => {
+              console.log('ALL PLAYLISTS HAVE BEEN CREATED', playlistResponse.length)
+              var totalTracks = 0;
+              var songPromises = [];
+              Playlist.findAll().then(items => {
+                console.log('THE LENGTH IS', items.length)
+                var ind = 0;
+                var interval = setInterval(() => {
+                  if (ind >= items.length) {
+                    clearInterval(interval);
+                  } else {
+                    item = items[ind]
+                    songSaverLoop(item, ind, user, totalTracks)
+                    ind = ind + 1;
+                  }
+                }, 2000)
+              })
+              .catch(err => {
+                console.log('Error finding all playlists', err)
+              })
+            })
+            .catch(err => {
+              console.log('Error in playlist storing promise chain', err)
+            })
+          })
+          .catch(err => {
+            console.log('Error in playlist fetching promise chain', err)
+          })
+        })
+        .catch(err => {
+          console.log('Error fetching all playlists', err)
+        })
+      })
+      .catch(err => {
+        console.log('Error finding user', err)
+      })
+    })
   })
-  // Playlist.drop().then(() => {
-  //   Song.drop().then(() => {
-  //     // Find the user
-  //     User.findOne().then(user => {
-  //       axios({
-  //         method: 'get',
-  //         url: `https://api.spotify.com/v1/users/spotify/playlists`,
-  //         headers: {
-  //           Authorization: `Bearer ${user.access}`
-  //         }
-  //       })
-  //       .then(response => {
-  //         // Begin to extract all Spotify playlists
-  //         var offset = 0;
-  //         var total = response.data.total
-  //         var limit = 50;
-  //         // Iterate through all playlists in increments of 50
-  //         var promiseArray = [];
-  //         while (offset < total) {
-  //           promiseArray.push(
-  //             axios({
-  //               method: 'get',
-  //               url: `https://api.spotify.com/v1/users/spotify/playlists?offset=${offset}&limit=${limit}`,
-  //               headers: {
-  //                 Authorization: `Bearer ${user.access}`
-  //               }
-  //             })
-  //             .catch(err => {
-  //               console.log('Error retrieving all playlists', err)
-  //             })
-  //           )
-  //           offset = offset + limit;
-  //         }
-  //         // Once all playlist groups have been fetched, store each in a database
-  //         Promise.all(promiseArray)
-  //         .then(promiseResponse => {
-  //           console.log('ALL PLAYLISTS HAVE BEEN PULLED', promiseResponse.length)
-  //           var playlistPromises = []
-  //           promiseResponse.forEach(promise => {
-  //             playlistPromises = playlistPromises.concat(promise.data.items.map((item, i) => {
-  //               return Playlist.sync()
-  //               .then(() => {
-  //                 Playlist.create({
-  //                   collaborative: item.collaborative,
-  //                   href: item.href,
-  //                   key: item.id,
-  //                   name: item.name,
-  //                   owner: item.owner,
-  //                   public: item.public,
-  //                   snapshot_id: item.snapshot_id,
-  //                   tracks_string: item.tracks.href,
-  //                   tracks_number: item.tracks.total,
-  //                   type: item.type,
-  //                   uri: item.uri
-  //                 })
-  //                 .catch(err => {
-  //                   console.log('Error creating playlist', err)
-  //                 })
-  //               })
-  //               .catch(err => {
-  //                 console.log('Error syncing item creation', err)
-  //               })
-  //             }))
-  //           })
-  //           // Once all the playlists have been stored, store each track
-  //           Promise.all(playlistPromises)
-  //           .then(playlistResponse => {
-  //             console.log('ALL PLAYLISTS HAVE BEEN CREATED', playlistResponse.length)
-  //             var totalTracks = 0;
-  //             var songPromises = [];
-  //             Playlist.findAll().then(items => {
-  //               console.log('THE LENGTH IS', items.length)
-  //               var ind = 0;
-  //               var interval = setInterval(() => {
-  //                 if (ind >= items.length) {
-  //                   clearInterval(interval);
-  //                 } else {
-  //                   item = items[ind]
-  //                   songSaverLoop(item, ind, user, totalTracks)
-  //                   ind = ind + 1;
-  //                 }
-  //               }, 2000)
-  //             })
-  //             .catch(err => {
-  //               console.log('Error finding all playlists', err)
-  //             })
-  //           })
-  //           .catch(err => {
-  //             console.log('Error in playlist storing promise chain', err)
-  //           })
-  //         })
-  //         .catch(err => {
-  //           console.log('Error in playlist fetching promise chain', err)
-  //         })
-  //       })
-  //       .catch(err => {
-  //         console.log('Error fetching all playlists', err)
-  //       })
-  //     })
-  //     .catch(err => {
-  //       console.log('Error finding user', err)
-  //     })
-  //   })
-  // })
 })
 
 var songSaverLoop = (item, ind, user, totalTracks) => {
@@ -239,16 +235,20 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
     if (response.data.items) {
       response.data.items.forEach((track, index) => {
         var albumArtists = []
+        var albumArtistsLower = []
         track.track.album.artists.forEach(art => {
           albumArtists.push(art.name)
+          albumArtistsLower.push(art.name.toLowerCase())
         })
         var markets = []
         track.track.available_markets.forEach(mark => {
           markets.push(mark)
         })
         var artists = []
+        var artistsLower = []
         track.track.artists.forEach(art => {
           artists.push(art.name)
+          artistsLower.push(art.name.toLowerCase())
         })
         var pos = (count * 100) + index + 1
         totalTracks = totalTracks + 1
@@ -258,13 +258,16 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
             added: track.added_at,
             album_type: track.track.album.album_type,
             album_name: track.track.album.name,
+            album_name_lower: track.track.album.name.toLowerCase(),
             album_artist: albumArtists,
+            album_artist_lower: albumArtistsLower,
             artists: artists,
+            artists_lower: artistsLower,
             markets: markets,
-            duration: track.track.album.duration,
             href: track.track.href,
             key: track.track.id,
             name: track.track.name,
+            name_lower: track.track.name.toLowerCase(),
             popularity: track.track.popularity,
             track_number: track.track.track_number,
             playlist: item.dataValues.key,
@@ -438,17 +441,14 @@ app.get('/callback', function(req, res) {
       console.log('Searching for an album/artist/song')
       // Extract album/song/artist data
       var goodTracks = []
-      Song.findAll().then(tracks => {
+      Song.findAll({where: {
+        album_name_lower: album,
+        name_lower: song
+      }}).then(tracks => {
         tracks.forEach(track => {
-          lowerSong = track.name.toLowerCase();
-          lowerAlbum = track.album_name.toLowerCase();
-          lowerArtist = [];
-          track.album_artist.forEach(artist => {
-            lowerArtist.push(artist.toLowerCase())
-          })
-          if (lowerSong.includes(song) &&
-          lowerAlbum.includes(album) &&
-          lowerArtist.includes(artist)) {
+          if (track.name_lower.includes(song) &&
+          track.album_name_lower.includes(album) &&
+          track.album_artist_lower.includes(artist)) {
             goodTracks.push(track)
             var prom = new Promise((resolve, reject) => {
               resolve(Playlist.findOne({
@@ -480,7 +480,7 @@ app.get('/callback', function(req, res) {
               }
               if (!found) {
                 var track = goodTracks[i]
-                lists.push({p: playlist.name, e: [{n: "Album: " + track.album_name + " /// Song: " + track.name, pos: track.position}]})
+                lists.push({p: playlist.name, e: [{n: "Album: " + track.album_name + " /// Song: " + track.name, pos: track.position, popu: track.popularity}]})
               }
             })
             res.send({
@@ -500,15 +500,12 @@ app.get('/callback', function(req, res) {
       console.log('Searching for an album/artist')
       // Extract album/artist data
       var goodTracks = []
-      Song.findAll().then(tracks => {
+      Song.findAll({where: {
+        album_name_lower: album,
+      }}).then(tracks => {
         tracks.forEach(track => {
-          lowerAlbum = track.album_name.toLowerCase();
-          lowerArtist = [];
-          track.album_artist.forEach(artist => {
-            lowerArtist.push(artist.toLowerCase())
-          })
-          if (lowerAlbum.includes(album) &&
-          lowerArtist.includes(artist)) {
+          if (track.album_name_lower.includes(album) &&
+          track.album_artist_lower.includes(artist)) {
             goodTracks.push(track)
             var prom = new Promise((resolve, reject) => {
               resolve(Playlist.findOne({
@@ -543,13 +540,13 @@ app.get('/callback', function(req, res) {
                     }
                   }
                   if (!cFound) {
-                    hits[i].c.push({n: playlist.name, pos: track.position})
+                    hits[i].c.push({n: playlist.name, pos: track.position, popu: track.popularity})
                   }
                   hitFound = true;
                 }
               }
               if (!hitFound) {
-                hits.push({t: track.name, c: [{n: playlist.name, pos: track.position}]})
+                hits.push({t: track.name, c: [{n: playlist.name, pos: track.position, popu: track.popularity}]})
               }
 
               var listFound = false;
@@ -562,13 +559,13 @@ app.get('/callback', function(req, res) {
                     }
                   }
                   if (!eFound) {
-                    lists[i].e.push({n: track.name, pos: track.position})
+                    lists[i].e.push({n: track.name, pos: track.position, popu: track.popularity})
                   }
                   listFound = true;
                 }
               }
               if (!listFound) {
-                lists.push({p: playlist.name, e: [{n: track.name, pos: track.position}]})
+                lists.push({p: playlist.name, e: [{n: track.name, pos: track.position, popu: track.popularity}]})
               }
             })
             var finalHits = hits.filter(function(item, pos) {
@@ -600,15 +597,12 @@ app.get('/callback', function(req, res) {
       console.log('Searching for a song/artist')
       // Extract song/artist data
       var goodTracks = []
-      Song.findAll().then(tracks => {
+      Song.findAll({where: {
+        name_lower: song
+      }}).then(tracks => {
         tracks.forEach(track => {
-          lowerSong = track.name.toLowerCase();
-          lowerArtist = [];
-          track.artists.forEach(artist => {
-            lowerArtist.push(artist.toLowerCase())
-          })
-          if (lowerSong.includes(song) &&
-          lowerArtist.includes(artist)) {
+          if (track.name_lower.includes(song) &&
+          track.artists_lower.includes(artist)) {
             goodTracks.push(track)
             var prom = new Promise((resolve, reject) => {
               resolve(Playlist.findOne({
@@ -643,14 +637,14 @@ app.get('/callback', function(req, res) {
                     }
                   }
                   if (!eFound) {
-                    lists[i].e.push({n: thread, pos: track.position})
+                    lists[i].e.push({n: thread, pos: track.position, popu: track.popularity})
                   }
                   listFound = true;
                 }
               }
               if (!listFound) {
                 var note = "Album: " + track.album_name + " /// Song: " + track.name
-                lists.push({p: playlist.name, e: [{n: note, pos: track.position}]})
+                lists.push({p: playlist.name, e: [{n: note, pos: track.position, popu: track.popularity}]})
               }
             })
             var finalPlaylists = lists.filter(function(item, pos) {
@@ -679,11 +673,7 @@ app.get('/callback', function(req, res) {
       var goodTracks = []
       Song.findAll().then(tracks => {
         tracks.forEach(track => {
-          lowerArtist = [];
-          track.artists.forEach(artist => {
-            lowerArtist.push(artist.toLowerCase())
-          })
-          if (lowerArtist.includes(artist)) {
+          if (track.artists_lower.includes(artist)) {
             goodTracks.push(track)
             var prom = new Promise((resolve, reject) => {
               resolve(Playlist.findOne({
@@ -718,13 +708,13 @@ app.get('/callback', function(req, res) {
                     }
                   }
                   if (!cFound) {
-                    hits[i].c.push({n: playlist.name, pos: track.position})
+                    hits[i].c.push({n: playlist.name, pos: track.position, popu: track.popularity})
                   }
                   hitFound = true;
                 }
               }
               if (!hitFound) {
-                hits.push({t: track.name, c: [{n: playlist.name, pos: track.position}]})
+                hits.push({t: track.name, c: [{n: playlist.name, pos: track.position, popu: track.popularity}]})
               }
 
               var listFound = false;
@@ -738,14 +728,14 @@ app.get('/callback', function(req, res) {
                     }
                   }
                   if (!eFound) {
-                    lists[i].e.push({n: thread, pos: track.position})
+                    lists[i].e.push({n: thread, pos: track.position, popu: track.popularity})
                   }
                   listFound = true;
                 }
               }
               if (!listFound) {
                 var note = track.name + " (" + track.artists[0] + "- " + track.album_name + ")"
-                lists.push({p: playlist.name, e: [{n: note, pos: track.position}]})
+                lists.push({p: playlist.name, e: [{n: note, pos: track.position, popu: track.popularity}]})
               }
             })
 
@@ -781,8 +771,26 @@ app.get('/callback', function(req, res) {
     var totalLists;
     Playlist.findAll().then(lists => {
       totalLists = lists.length
-      res.send({
-        total: totalLists
+      User.findOne().then(user => {
+        axios({
+          method: 'get',
+          url: `https://api.spotify.com/v1/users/spotify`,
+          headers: {
+            Authorization: `Bearer ${user.access}`
+          }
+        })
+        .then(resp => {
+          res.send({
+            total: totalLists,
+            followers: resp.data.followers.total
+          })
+        })
+        .catch(err => {
+          console.log('Error getting spotify user', err)
+        })
+      })
+      .catch(err => {
+        console.log('Error finding a user in getTotal', err)
       })
     })
   })
