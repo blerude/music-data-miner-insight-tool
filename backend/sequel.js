@@ -24,20 +24,20 @@
 
 const Sequelize = require('sequelize');
 // console.log(process.env)
-// const sequelize = new Sequelize('process.env.SQL_DATABASE', 'admin', 'f2ae502e0cc82f7ab2e7e954e180fff8d5830b13356640e6', {
-//   host: '165.227.248.122',
-//   port: '3306',
-//   dialect: 'mysql'
-//   // pool: {
-//   //   max: 5,
-//   //   min: 0,
-//   //   idle: 10000
-//   // },
-//   // storage: './dataminer.sqlite'
+// const sequelize = new Sequelize('process.env.SQL_DATABASE', '', '', {
+//   host: 'localhost',
+//   port: '3000',
+//   dialect: 'postgres'
+  // pool: {
+  //   max: 5,
+  //   min: 0,
+  //   idle: 10000
+  // },
+  // storage: './dataminer.sqlite'
 // });
 
-const sequelize = new Sequelize('mysql://admin:f2ae502e0cc82f7ab2e7e954e180fff8d5830b13356640e6@174.138.110.59:3306/test');
-
+// const sequelize = new Sequelize('mysql://admin:f2ae502e0cc82f7ab2e7e954e180fff8d5830b13356640e6@174.138.110.59:3306/test');
+const sequelize = new Sequelize('postgres://127.0.0.1:3000/postgres')
 
 sequelize.authenticate()
 .then(() => {

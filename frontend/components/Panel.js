@@ -29,7 +29,6 @@ class Panel extends React.Component {
       url: '/getTotal'
     })
     .then(response => {
-      console.log('name: ' + this.props.match.params.name)
       this.setState({name: this.props.match.params.name, total: response.data.total, followers: response.data.followers})
     })
     .catch(err => {
@@ -125,7 +124,6 @@ class Panel extends React.Component {
   };
 
   render() {
-    console.log(this.state.total)
     var string = ""
     if (this.state.query.song && this.state.query.album) {
       string = "\"" + this.state.query.song + "\" from " + this.state.query.album + " by "

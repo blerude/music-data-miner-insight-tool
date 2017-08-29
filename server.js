@@ -1,7 +1,7 @@
 const path = require('path');
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const api = require('./backend/routes');
 
 var request = require('request'); // "Request" library
@@ -10,6 +10,7 @@ var cookieParser = require('cookie-parser');
 var client_id = process.env.SPOTIFY_ID; // Your client id
 var client_secret = process.env.SPOTIFY_SECRET; // Your secret
 var redirect_uri = 'http://localhost:'+PORT+'/callback'; // Your redirect uri
+console.log('uri: ' + redirect_uri)
 // var redirect_uri = 'https://musicdataminer.herokuapp.com/callback' // Redirect on heroku
 
 var bodyParser = require('body-parser');
