@@ -9,8 +9,8 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var client_id = process.env.SPOTIFY_ID; // Your client id
 var client_secret = process.env.SPOTIFY_SECRET; // Your secret
-// var redirect_uri = 'http://localhost:'+PORT+'/callback'; // Your redirect uri
-var redirect_uri = 'https://musicdataminer.herokuapp.com/callback' // Redirect on heroku
+var redirect_uri = 'http://localhost:'+PORT+'/callback'; // Your redirect uri
+// var redirect_uri = 'https://musicdataminer.herokuapp.com/callback' // Redirect on heroku
 
 var bodyParser = require('body-parser');
 var session = require('express-session');
