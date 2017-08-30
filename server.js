@@ -23,9 +23,6 @@ var localStorage = require('localStorage')
 var axios = require('axios')
 
 var Sequelize = require('sequelize')
-// var User = require('./models/user.js')
-// var Playlist = require('./models/playlist.js')
-// var Song = require('./models/song.js')
 var { sequelize, User, Playlist, Song } = require('./backend/sequel.js')
 
 var mongoose = require('mongoose');
