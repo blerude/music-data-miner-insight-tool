@@ -1,42 +1,7 @@
 // const mysql = require('mysql');
 //
 // // First you need to create a connection to the db
-// const con = mysql.createConnection({
-//   host: 'localhost',
-//   user: 'root',
-//   password: 'Ymsd2017',
-//   port: '3000'
-// });
-//
-// con.connect((err) => {
-//   if(err){
-//     console.log('Error connecting to Db', err);
-//     return;
-//   }
-//   console.log('Connection established');
-// });
-//
-// con.end((err) => {
-//   // The connection is terminated gracefully
-//   // Ensures all previously enqueued queries are still
-//   // before sending a COM_QUIT packet to the MySQL server.
-// });
-
 const Sequelize = require('sequelize');
-// console.log(process.env)
-// const sequelize = new Sequelize('process.env.SQL_DATABASE', '', '', {
-//   host: 'localhost',
-//   port: '3000',
-//   dialect: 'postgres'
-  // pool: {
-  //   max: 5,
-  //   min: 0,
-  //   idle: 10000
-  // },
-  // storage: './dataminer.sqlite'
-// });
-
-// const sequelize = new Sequelize('mysql://admin:f2ae502e0cc82f7ab2e7e954e180fff8d5830b13356640e6@174.138.110.59:3306/test');
 const sequelize = new Sequelize('postgresql://ben:Ymsd2017@127.0.0.1:5432/mydb')
 
 sequelize.authenticate()
@@ -89,7 +54,9 @@ const Song = sequelize.define('song', {
   name_lower: Sequelize.STRING,
   playlist: Sequelize.STRING,
   popularity: Sequelize.INTEGER,
+  prevPopularity: Sequelize.ARRAY(Sequelize.INTEGER),
   position: Sequelize.INTEGER,
+  prevPosition: Sequelize.ARRAY(Sequelize.INTEGER)
 })
 
 module.exports = {

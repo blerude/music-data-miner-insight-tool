@@ -197,8 +197,8 @@ class Panel extends React.Component {
                   this.state.listCount !== '' ? <div className="resultCountBox">
                     {
                       this.state.listCount === 1 ?
-                      <p className="searchResult green up">{"Found " + this.state.listCount + " playlist (" + this.round10(this.state.listCount/this.state.total, 3) + "%) for this search"}</p> :
-                      <p className="searchResult green up">{"Found " + this.state.listCount + " playlists (" + this.round10(this.state.listCount/this.state.total, 3) + "%) for this search"}</p>
+                      <p className="searchResult green up">{"Found " + this.state.listCount + " playlist (" + (this.round10(this.state.listCount/this.state.total, 2) * 100) + "%) for this search"}</p> :
+                      <p className="searchResult green up">{"Found " + this.state.listCount + " playlists (" + (this.round10(this.state.listCount/this.state.total, 2) * 100) + "%) for this search"}</p>
                     }
                   </div> : null
                 }

@@ -105,6 +105,7 @@ var stateKey = 'spotify_auth_state';
 app.get('/load', function(req, res) {
   console.log('LOADING...')
   // CLEAR PLAYLIST AND TRACK DATABASE
+  /*
   Playlist.drop().then(() => {
     Song.drop().then(() => {
       // Find the user
@@ -205,6 +206,7 @@ app.get('/load', function(req, res) {
       })
     })
   })
+  */
 })
 
 var songSaverLoop = (item, ind, user, totalTracks) => {
