@@ -11,7 +11,12 @@ Electric Blue:          #6EF9F5
 body {
   margin: 10px;
   padding: 10px;
-  background-color: white;
+  background-size: cover;
+  background-image: url('./music2.jpg');
+  height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .container {
   background-color: #2C666E;
