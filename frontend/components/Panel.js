@@ -134,6 +134,8 @@ class Panel extends React.Component {
     } else if (this.state.query.album) {
       string = this.state.query.album + " by "
     }
+    var count = Math.round((this.round10(this.state.listCount/this.state.total, 4) * 100), -2)
+    console.log('C: ' + count)
     return (
       <div>
         <div className="panel">
@@ -197,8 +199,8 @@ class Panel extends React.Component {
                   this.state.listCount !== '' ? <div className="resultCountBox">
                     {
                       this.state.listCount === 1 ?
-                      <p className="searchResult green up">{"Found " + this.state.listCount + " playlist (" + (this.round10(this.state.listCount/this.state.total, 2) * 100) + "%) for this search"}</p> :
-                      <p className="searchResult green up">{"Found " + this.state.listCount + " playlists (" + (this.round10(this.state.listCount/this.state.total, 2) * 100) + "%) for this search"}</p>
+                      <p className="searchResult green up">{"Found " + this.state.listCount + " playlist (" + count + "%) for this search"}</p> :
+                      <p className="searchResult green up">{"Found " + this.state.listCount + " playlists (" + count + "%) for this search"}</p>
                     }
                   </div> : null
                 }
@@ -301,11 +303,11 @@ class Panel extends React.Component {
             </div>
           </div>
           <br/>
-          <button
+          {/* <button
             className="submit smaller"
             onClick={() => this.load()}>
             Download Playlist Data (once)
-          </button>
+          </button> */}
         </div>
         <Link to="/home">
           <text className="btn login home">
