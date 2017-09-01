@@ -1,13 +1,18 @@
+// /tmp/crontab.0u4KLo/crontab 
+
 var axios = require('axios')
+var request = require('request'); // "Request" library
 var Sequelize = require('sequelize')
-var { sequelize, User, Playlist, Song } = require('./backend/sequel.js')
+var { sequelize, User, Playlist, Track } = require('./backend/sequel.js')
+var client_id = process.env.SPOTIFY_ID; // Your client id
+var client_secret = process.env.SPOTIFY_SECRET; // Your secret
 
 
 var loadFunction = () => {
   console.log('LOADING...')
   // CLEAR PLAYLIST AND TRACK DATABASE
   Playlist.drop().then(() => {
-    Song.drop().then(() => {
+    Track.drop().then(() => {
       // Find the user
       User.findOne().then(user => {
         axios({
@@ -178,9 +183,9 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
         })
         var pos = (count * 100) + index + 1
         totalTracks = totalTracks + 1
-        Song.sync()
+        Track.sync()
         .then(() => {
-          Song.create({
+          Track.create({
             added: track.added_at,
             album_type: track.track.album.album_type,
             album_name: track.track.album.name,
@@ -195,11 +200,11 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
             name: track.track.name,
             name_lower: track.track.name.toLowerCase(),
             popularity: track.track.popularity,
-            prevPopularity: [],
+            prevPop: [],
             track_number: track.track.track_number,
             playlist: item.dataValues.key,
             position: pos,
-            prevPosition: []
+            prevPos: []
           })
           .catch(err => {
             console.log('Error creating track', err)
@@ -220,4 +225,6 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
 
 
 // CALL FUNCTION
-loadFunction()
+setTimeout(() => {
+  loadFunction()
+}, 2000)

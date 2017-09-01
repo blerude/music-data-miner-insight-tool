@@ -24,7 +24,7 @@ var localStorage = require('localStorage')
 var axios = require('axios')
 
 var Sequelize = require('sequelize')
-var { sequelize, User, Playlist, Song } = require('./backend/sequel.js')
+var { sequelize, User, Playlist, Track } = require('./backend/sequel.js')
 
 var mongoose = require('mongoose');
 mongoose.connection.on('connected', function() {
@@ -208,7 +208,7 @@ app.get('/load', function(req, res) {
   })
   */
 })
-
+/*
 var songSaverLoop = (item, ind, user, totalTracks) => {
   var offset2 = 0;
   var total2 = item.dataValues.tracks_number;
@@ -315,7 +315,7 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
     console.log('Error getting tracks', err)
   })
 }
-
+*/
 app.get('/login', function(req, res) {
   var state = generateRandomString(16);
   res.cookie(stateKey, state);
@@ -356,7 +356,7 @@ app.get('/callback', function(req, res) {
       },
       json: true
     };
-    //User.drop()
+    
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
 
@@ -470,7 +470,7 @@ app.get('/callback', function(req, res) {
       console.log('Searching for an album/artist/song')
       // Extract album/song/artist data
       var goodTracks = []
-      Song.findAll({where: {
+      Track.findAll({where: {
         album_name_lower: {
           $like: `%${album}%`
         },
@@ -533,7 +533,7 @@ app.get('/callback', function(req, res) {
       console.log('Searching for an album/artist')
       // Extract album/artist data
       var goodTracks = []
-      Song.findAll({where: {
+      Track.findAll({where: {
         album_name_lower: {
           $like: `%${album}%`
         }
@@ -632,7 +632,7 @@ app.get('/callback', function(req, res) {
       console.log('Searching for a song/artist')
       // Extract song/artist data
       var goodTracks = []
-      Song.findAll({where: {
+      Track.findAll({where: {
         name_lower: {
           $like: `%${song}%`
         }
@@ -709,7 +709,7 @@ app.get('/callback', function(req, res) {
       // Extract artist data
       console.log('ART: ' + `${artist}`)
       var goodTracks = []
-      Song.findAll({where: {
+      Track.findAll({where: {
         artists_lower: {
           $contains: [`${artist}`]
  	}
