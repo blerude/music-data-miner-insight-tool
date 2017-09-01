@@ -48,7 +48,7 @@ const Song = sequelize.define('song', {
   album_artist: Sequelize.JSON,
   album_artist_lower: Sequelize.JSON,
   artists: Sequelize.JSON,
-  artists_lower: Sequelize.JSON,
+  artists_lower: Sequelize.ARRAY(Sequelize.STRING),
   href: Sequelize.STRING,
   key: Sequelize.STRING,
   markets: Sequelize.JSON,
@@ -56,9 +56,9 @@ const Song = sequelize.define('song', {
   name_lower: Sequelize.STRING,
   playlist: Sequelize.STRING,
   popularity: Sequelize.INTEGER,
-  prevPopularity: Sequelize.INTEGER,
+  prevPopularity: Sequelize.ARRAY(Sequelize.INTEGER),
   position: Sequelize.INTEGER,
-  prevPosition: Sequelize.INTEGER
+  prevPosition: Sequelize.ARRAY(Sequelize.INTEGER)
 })
 
 module.exports = {

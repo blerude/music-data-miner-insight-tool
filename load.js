@@ -195,9 +195,11 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
             name: track.track.name,
             name_lower: track.track.name.toLowerCase(),
             popularity: track.track.popularity,
+            prevPopularity: [],
             track_number: track.track.track_number,
             playlist: item.dataValues.key,
-            position: pos
+            position: pos,
+            prevPosition: []
           })
           .catch(err => {
             console.log('Error creating track', err)
