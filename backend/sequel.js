@@ -1,8 +1,10 @@
-// const mysql = require('mysql');
-//
-// // First you need to create a connection to the db
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('postgresql://ben:Ymsd2017@127.0.0.1:5432/mydb')
+// const sequelize = new Sequelize('postgresql://ben:Ymsd2017@127.0.0.1:5432/mydb')
+const sequelize = new Sequelize(process.env.SQL_DATABASE, process.env.SQL_NAME, process.env.SQL_PASSWORD, {
+  host: 'localhost',
+  dialect: 'sqlite',
+  storage: './dataminer.sqlite'
+})
 
 sequelize.authenticate()
 .then(() => {

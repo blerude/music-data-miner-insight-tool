@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const app = express();
 const PORT = 8080;
+// const PORT = 3001;
 const api = require('./backend/routes');
 
 var request = require('request'); // "Request" library
@@ -10,7 +11,8 @@ var cookieParser = require('cookie-parser');
 var client_id = process.env.SPOTIFY_ID; // Your client id
 var client_secret = process.env.SPOTIFY_SECRET; // Your secret
 var redirect_uri = 'http://45.55.197.135:80/callback'; // Your redirect uri
-//var redirect_uri = 'http://165.227.251.12:80/callback'; // Your redirect uri
+// var redirect_uri = 'http://165.227.251.12:80/callback'; // Your redirect uri
+// var redirect_uri = 'http://localhost:3001/callback'
 // var redirect_uri = 'https://musicdataminer.herokuapp.com/callback' // Redirect on heroku
 
 var bodyParser = require('body-parser');
@@ -218,7 +220,7 @@ var songSaverLoop = (item, ind, user, totalTracks) => {
   while (count < roof) {
     var url = item.dataValues.tracks_string + "?offset=" + offset2 + "&limit=" + limit2;
     offset2 = offset2 + 100;
-    
+
     if (user.expires < new Date().getTime()) {
       var refresh_token = user.refresh;
       var authOptions = {
@@ -362,7 +364,7 @@ app.get('/callback', function(req, res) {
 
         var access_token = body.access_token,
         refresh_token = body.refresh_token,
-	expires = body.expires_in;
+        expires = body.expires_in;
         console.log('access', access_token)
         console.log('refresh', refresh_token)
 
@@ -398,8 +400,8 @@ app.get('/callback', function(req, res) {
                     uri: body.uri,
                     access: access_token,
                     refresh: refresh_token,
-                    expires: new Date().getTime() + (expires * 1000) 
-		  }))
+                    expires: new Date().getTime() + (expires * 1000)
+		               }))
                   .catch(err => {
                     console.log('Error creating a user', err)
                   })
@@ -407,7 +409,7 @@ app.get('/callback', function(req, res) {
                   console.log('Updating...')
                   user.access = access_token;
                   user.refresh = refresh_token;
-		  user.expires = new Date().getTime() + (expires * 1000)
+                  user.expires = new Date().getTime() + (expires * 1000)
                   user.save()
                 }
               })
@@ -815,7 +817,6 @@ app.get('/callback', function(req, res) {
       totalLists = lists.length
       User.findOne().then(user => {
         if (user.expires < new Date().getTime()) {
-          console.log('IF')
           var refresh_token = user.refresh;
           var authOptions = {
             url: 'https://accounts.spotify.com/api/token',
@@ -853,8 +854,7 @@ app.get('/callback', function(req, res) {
             }
           });
         } else {
-          console.log('ELSE')
-	  axios({
+          axios({
             method: 'get',
             url: `https://api.spotify.com/v1/users/spotify`,
             headers: {
