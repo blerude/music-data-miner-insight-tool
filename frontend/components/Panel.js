@@ -24,6 +24,8 @@ class Panel extends React.Component {
 
   componentDidMount() {
     $('#query').hide();
+    console.log('HELLO?????');
+    console.log('NAME: ' + this.props.match.params.name)
     axios({
       method: 'get',
       url: '/getTotal'

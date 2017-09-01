@@ -37,7 +37,7 @@ const Sequelize = require('sequelize');
 // });
 
 // const sequelize = new Sequelize('mysql://admin:f2ae502e0cc82f7ab2e7e954e180fff8d5830b13356640e6@174.138.110.59:3306/test');
-const sequelize = new Sequelize('postgres://127.0.0.1:5432/postgres')
+const sequelize = new Sequelize('postgresql://ben:Ymsd2017@127.0.0.1:5432/mydb')
 
 sequelize.authenticate()
 .then(() => {
@@ -59,7 +59,8 @@ const User = sequelize.define('user', {
   type: Sequelize.STRING,
   uri: Sequelize.STRING,
   access: Sequelize.STRING,
-  refresh: Sequelize.STRING
+  refresh: Sequelize.STRING,
+  expires: Sequelize.STRING
 })
 
 const Playlist = sequelize.define('playlist', {
@@ -80,7 +81,7 @@ const Song = sequelize.define('song', {
   album_artist: Sequelize.JSON,
   album_artist_lower: Sequelize.JSON,
   artists: Sequelize.JSON,
-  artists_lower: Sequelize.JSON,
+  artists_lower: Sequelize.ARRAY(Sequelize.STRING),
   href: Sequelize.STRING,
   key: Sequelize.STRING,
   markets: Sequelize.JSON,
