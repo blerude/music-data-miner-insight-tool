@@ -1,8 +1,8 @@
 const path = require('path');
 const express = require('express');
 const app = express();
-// const PORT = 8080;
-const PORT = 3001;
+const PORT = 8080;
+// const PORT = 3001;
 const api = require('./backend/routes');
 
 var request = require('request'); // "Request" library
@@ -10,9 +10,9 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var client_id = process.env.SPOTIFY_ID; // Your client id
 var client_secret = process.env.SPOTIFY_SECRET; // Your secret
-// var redirect_uri = 'http://45.55.197.135:80/callback'; // Your redirect uri
+var redirect_uri = 'http://45.55.197.135:80/callback'; // Your redirect uri
 // var redirect_uri = 'http://165.227.251.12:80/callback'; // Your redirect uri
-var redirect_uri = 'http://localhost:3001/callback'
+// var redirect_uri = 'http://localhost:3001/callback'
 // var redirect_uri = 'https://musicdataminer.herokuapp.com/callback' // Redirect on heroku
 
 var bodyParser = require('body-parser');
