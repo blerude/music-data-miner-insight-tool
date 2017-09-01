@@ -135,7 +135,6 @@ class Panel extends React.Component {
       string = this.state.query.album + " by "
     }
     var count = (this.round10(this.state.listCount/this.state.total, 4) * 100).toFixed(2);
- 
     return (
       <div>
         <div className="panel">
