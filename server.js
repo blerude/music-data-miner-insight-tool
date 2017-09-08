@@ -10,14 +10,9 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var client_id = process.env.SPOTIFY_ID; // Your client id
 var client_secret = process.env.SPOTIFY_SECRET; // Your secret
-<<<<<<< HEAD
-var redirect_uri = 'http://165.227.251.12:80/callback'; // Your redirect uri
-// var redirect_uri = 'localhost:3000/3001/callback'
-=======
 var redirect_uri = 'http://45.55.197.135:80/callback'; // Your redirect uri
 // var redirect_uri = 'http://165.227.251.12:80/callback'; // Your redirect uri
 // var redirect_uri = 'http://localhost:3001/callback'
->>>>>>> bb1e911a7d3f492e2093243059b541346cdfaa35
 // var redirect_uri = 'https://musicdataminer.herokuapp.com/callback' // Redirect on heroku
 
 var bodyParser = require('body-parser');
@@ -612,9 +607,6 @@ app.get('/callback', function(req, res) {
       totalLists = lists.length
       User.findOne().then(user => {
         if (user.expires < new Date().getTime()) {
-<<<<<<< HEAD
-
-=======
           var refresh_token = user.refresh;
           var authOptions = {
             url: 'https://accounts.spotify.com/api/token',
@@ -652,7 +644,6 @@ app.get('/callback', function(req, res) {
             }
           });
         } else {
->>>>>>> bb1e911a7d3f492e2093243059b541346cdfaa35
           axios({
             method: 'get',
             url: `https://api.spotify.com/v1/users/spotify`,
@@ -669,26 +660,6 @@ app.get('/callback', function(req, res) {
           .catch(err => {
             console.log('Error getting spotify user', err)
           })
-<<<<<<< HEAD
-        } else {
-          axios({
-            method: 'get',
-            url: `https://api.spotify.com/v1/users/spotify`,
-            headers: {
-              Authorization: `Bearer ${user.access}`
-            }
-          })
-          .then(resp => {
-            res.send({
-              total: totalLists,
-              followers: resp.data.followers.total
-            })
-          })
-          .catch(err => {
-            console.log('Error getting spotify user', err)
-          })
-=======
->>>>>>> bb1e911a7d3f492e2093243059b541346cdfaa35
         }
       })
       .catch(err => {
@@ -701,11 +672,3 @@ app.get('/callback', function(req, res) {
   })
 
   app.listen(PORT, 'localhost')
-<<<<<<< HEAD
-  // app.listen(PORT, error => {
-  //   error
-  //   ? console.error(error)
-  //   : console.info(`==> 🌎 Listening on port ${PORT}. Visit http://localhost:${PORT}/ in your browser.`);
-  // });
-=======
->>>>>>> bb1e911a7d3f492e2093243059b541346cdfaa35
