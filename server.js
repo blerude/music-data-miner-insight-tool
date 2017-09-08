@@ -1,7 +1,8 @@
 const path = require('path');
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = 8080;
+// const PORT = 3001;
 const api = require('./backend/routes');
 
 var request = require('request'); // "Request" library
@@ -9,7 +10,8 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var client_id = process.env.SPOTIFY_ID; // Your client id
 var client_secret = process.env.SPOTIFY_SECRET; // Your secret
-var redirect_uri = 'http://localhost:'+PORT+'/callback'; // Your redirect uri
+var redirect_uri = 'http://165.227.251.12:80/callback'; // Your redirect uri
+// var redirect_uri = 'localhost:3000/3001/callback'
 // var redirect_uri = 'https://musicdataminer.herokuapp.com/callback' // Redirect on heroku
 
 var bodyParser = require('body-parser');
@@ -769,22 +771,42 @@ app.get('/callback', function(req, res) {
     Playlist.findAll().then(lists => {
       totalLists = lists.length
       User.findOne().then(user => {
-        axios({
-          method: 'get',
-          url: `https://api.spotify.com/v1/users/spotify`,
-          headers: {
-            Authorization: `Bearer ${user.access}`
-          }
-        })
-        .then(resp => {
-          res.send({
-            total: totalLists,
-            followers: resp.data.followers.total
+        if (user.expires < new Date().getTime()) {
+
+          axios({
+            method: 'get',
+            url: `https://api.spotify.com/v1/users/spotify`,
+            headers: {
+              Authorization: `Bearer ${user.access}`
+            }
           })
-        })
-        .catch(err => {
-          console.log('Error getting spotify user', err)
-        })
+          .then(resp => {
+            res.send({
+              total: totalLists,
+              followers: resp.data.followers.total
+            })
+          })
+          .catch(err => {
+            console.log('Error getting spotify user', err)
+          })
+        } else {
+          axios({
+            method: 'get',
+            url: `https://api.spotify.com/v1/users/spotify`,
+            headers: {
+              Authorization: `Bearer ${user.access}`
+            }
+          })
+          .then(resp => {
+            res.send({
+              total: totalLists,
+              followers: resp.data.followers.total
+            })
+          })
+          .catch(err => {
+            console.log('Error getting spotify user', err)
+          })
+        }
       })
       .catch(err => {
         console.log('Error finding a user in getTotal', err)
@@ -792,8 +814,9 @@ app.get('/callback', function(req, res) {
     })
   })
 
-  app.listen(PORT, error => {
-    error
-    ? console.error(error)
-    : console.info(`==> 🌎 Listening on port ${PORT}. Visit http://localhost:${PORT}/ in your browser.`);
-  });
+  app.listen(PORT, 'localhost')
+  // app.listen(PORT, error => {
+  //   error
+  //   ? console.error(error)
+  //   : console.info(`==> 🌎 Listening on port ${PORT}. Visit http://localhost:${PORT}/ in your browser.`);
+  // });
