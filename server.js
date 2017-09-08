@@ -10,8 +10,14 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var client_id = process.env.SPOTIFY_ID; // Your client id
 var client_secret = process.env.SPOTIFY_SECRET; // Your secret
+<<<<<<< HEAD
 var redirect_uri = 'http://165.227.251.12:80/callback'; // Your redirect uri
 // var redirect_uri = 'localhost:3000/3001/callback'
+=======
+var redirect_uri = 'http://45.55.197.135:80/callback'; // Your redirect uri
+// var redirect_uri = 'http://165.227.251.12:80/callback'; // Your redirect uri
+// var redirect_uri = 'http://localhost:3001/callback'
+>>>>>>> bb1e911a7d3f492e2093243059b541346cdfaa35
 // var redirect_uri = 'https://musicdataminer.herokuapp.com/callback' // Redirect on heroku
 
 var bodyParser = require('body-parser');
@@ -25,7 +31,7 @@ var localStorage = require('localStorage')
 var axios = require('axios')
 
 var Sequelize = require('sequelize')
-var { sequelize, User, Playlist, Song } = require('./backend/sequel.js')
+var { sequelize, User, Playlist, Track } = require('./backend/sequel.js')
 
 var mongoose = require('mongoose');
 mongoose.connection.on('connected', function() {
@@ -106,6 +112,7 @@ var stateKey = 'spotify_auth_state';
 app.get('/load', function(req, res) {
   console.log('LOADING...')
   // CLEAR PLAYLIST AND TRACK DATABASE
+  /*
   Playlist.drop().then(() => {
     Song.drop().then(() => {
       // Find the user
@@ -206,8 +213,9 @@ app.get('/load', function(req, res) {
       })
     })
   })
+  */
 })
-
+/*
 var songSaverLoop = (item, ind, user, totalTracks) => {
   var offset2 = 0;
   var total2 = item.dataValues.tracks_number;
@@ -217,8 +225,34 @@ var songSaverLoop = (item, ind, user, totalTracks) => {
   while (count < roof) {
     var url = item.dataValues.tracks_string + "?offset=" + offset2 + "&limit=" + limit2;
     offset2 = offset2 + 100;
-    songSaverRequest(item, user, totalTracks, url, count)
-    count = count + 1
+
+    if (user.expires < new Date().getTime()) {
+      var refresh_token = user.refresh;
+      var authOptions = {
+        url: 'https://accounts.spotify.com/api/token',
+        headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
+        form: {
+          grant_type: 'refresh_token',
+          refresh_token: refresh_token
+        },
+        json: true
+      };
+
+      request.post(authOptions, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+          var access_token = body.access_token;
+          user.access = access_token
+          user.expires = new Date().getTime() + (body.expires_in * 1000);
+          user.save().then(saved => {
+            songSaverRequest(item, user, totalTracks, url, count)
+            count = count + 1
+          })
+        }
+      });
+    } else {
+      songSaverRequest(item, user, totalTracks, url, count)
+      count = count + 1
+    }
   }
 }
 
@@ -288,7 +322,7 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
     console.log('Error getting tracks', err)
   })
 }
-
+*/
 app.get('/login', function(req, res) {
   var state = generateRandomString(16);
   res.cookie(stateKey, state);
@@ -329,12 +363,13 @@ app.get('/callback', function(req, res) {
       },
       json: true
     };
-
+    
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
 
         var access_token = body.access_token,
-        refresh_token = body.refresh_token;
+        refresh_token = body.refresh_token,
+        expires = body.expires_in;
         console.log('access', access_token)
         console.log('refresh', refresh_token)
 
@@ -369,8 +404,9 @@ app.get('/callback', function(req, res) {
                     type: body.type,
                     uri: body.uri,
                     access: access_token,
-                    refresh: refresh_token
-                  }))
+                    refresh: refresh_token,
+                    expires: new Date().getTime() + (expires * 1000)
+		               }))
                   .catch(err => {
                     console.log('Error creating a user', err)
                   })
@@ -378,6 +414,7 @@ app.get('/callback', function(req, res) {
                   console.log('Updating...')
                   user.access = access_token;
                   user.refresh = refresh_token;
+                  user.expires = new Date().getTime() + (expires * 1000)
                   user.save()
                 }
               })
@@ -440,9 +477,13 @@ app.get('/callback', function(req, res) {
       console.log('Searching for an album/artist/song')
       // Extract album/song/artist data
       var goodTracks = []
-      Song.findAll({where: {
-        album_name_lower: album,
-        name_lower: song
+      Track.findAll({where: {
+        album_name_lower: {
+          $like: `%${album}%`
+        },
+        name_lower: {
+          $like: `%${song}%`
+        }
       }}).then(tracks => {
         tracks.forEach(track => {
           if (track.name_lower.includes(song) &&
@@ -499,8 +540,10 @@ app.get('/callback', function(req, res) {
       console.log('Searching for an album/artist')
       // Extract album/artist data
       var goodTracks = []
-      Song.findAll({where: {
-        album_name_lower: album,
+      Track.findAll({where: {
+        album_name_lower: {
+          $like: `%${album}%`
+        }
       }}).then(tracks => {
         tracks.forEach(track => {
           if (track.album_name_lower.includes(album) &&
@@ -596,8 +639,10 @@ app.get('/callback', function(req, res) {
       console.log('Searching for a song/artist')
       // Extract song/artist data
       var goodTracks = []
-      Song.findAll({where: {
-        name_lower: song
+      Track.findAll({where: {
+        name_lower: {
+          $like: `%${song}%`
+        }
       }}).then(tracks => {
         tracks.forEach(track => {
           if (track.name_lower.includes(song) &&
@@ -669,8 +714,13 @@ app.get('/callback', function(req, res) {
     } else {
       console.log('Searching for an artist')
       // Extract artist data
+      console.log('ART: ' + `${artist}`)
       var goodTracks = []
-      Song.findAll().then(tracks => {
+      Track.findAll({where: {
+        artists_lower: {
+          $contains: [`${artist}`]
+ 	}
+      }}).then(tracks => {
         tracks.forEach(track => {
           if (track.artists_lower.includes(artist)) {
             goodTracks.push(track)
@@ -772,7 +822,47 @@ app.get('/callback', function(req, res) {
       totalLists = lists.length
       User.findOne().then(user => {
         if (user.expires < new Date().getTime()) {
+<<<<<<< HEAD
 
+=======
+          var refresh_token = user.refresh;
+          var authOptions = {
+            url: 'https://accounts.spotify.com/api/token',
+            headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
+            form: {
+              grant_type: 'refresh_token',
+              refresh_token: refresh_token
+            },
+            json: true
+          };
+
+          request.post(authOptions, function(error, response, body) {
+            if (!error && response.statusCode === 200) {
+              var access_token = body.access_token;
+              user.access = access_token
+              user.expires = new Date().getTime() + (body.expires_in * 1000);
+              user.save().then(saved => {
+                axios({
+                  method: 'get',
+                  url: `https://api.spotify.com/v1/users/spotify`,
+                  headers: {
+                    Authorization: `Bearer ${user.access}`
+                  }
+                })
+                .then(resp => {
+                  res.send({
+                    total: totalLists,
+                    followers: resp.data.followers.total
+                  })
+                })
+                .catch(err => {
+                  console.log('Error getting spotify user', err)
+                })
+              })
+            }
+          });
+        } else {
+>>>>>>> bb1e911a7d3f492e2093243059b541346cdfaa35
           axios({
             method: 'get',
             url: `https://api.spotify.com/v1/users/spotify`,
@@ -789,6 +879,7 @@ app.get('/callback', function(req, res) {
           .catch(err => {
             console.log('Error getting spotify user', err)
           })
+<<<<<<< HEAD
         } else {
           axios({
             method: 'get',
@@ -806,17 +897,25 @@ app.get('/callback', function(req, res) {
           .catch(err => {
             console.log('Error getting spotify user', err)
           })
+=======
+>>>>>>> bb1e911a7d3f492e2093243059b541346cdfaa35
         }
       })
       .catch(err => {
         console.log('Error finding a user in getTotal', err)
       })
     })
+    .catch(err => {
+      console.log('Error finding playlists', err)
+    })
   })
 
   app.listen(PORT, 'localhost')
+<<<<<<< HEAD
   // app.listen(PORT, error => {
   //   error
   //   ? console.error(error)
   //   : console.info(`==> 🌎 Listening on port ${PORT}. Visit http://localhost:${PORT}/ in your browser.`);
   // });
+=======
+>>>>>>> bb1e911a7d3f492e2093243059b541346cdfaa35
