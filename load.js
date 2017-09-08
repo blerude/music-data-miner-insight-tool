@@ -6,9 +6,15 @@ var Sequelize = require('sequelize')
 var { sequelize, User, Playlist, Track } = require('./backend/sequel.js')
 var client_id = process.env.SPOTIFY_ID; // Your client id
 var client_secret = process.env.SPOTIFY_SECRET; // Your secret
+var cron = require('node-cron')
+
+cron.schedule('0 0 * * *', () => {
+  initiateLoad()
+})
 
 var initiateLoad = () => {
   console.log('LOADING...')
+  // Playlist.findAll().then(lists => {console.log(lists.length)})
   // CLEAR PLAYLIST AND TRACK DATABASE
   Playlist.drop().then(() => {
     Track.drop().then(() => {
@@ -32,12 +38,14 @@ var initiateLoad = () => {
               user.access = access_token
               user.expires = new Date().getTime() + (body.expires_in * 1000);
               user.save().then(saved => {
-                loadFunction(user)
+		console.log('REFRESHED')
+                loadFunction(saved)
               })
             }
           });
         } else {
-          loadFunction(uesr)
+	  console.log('STRAIGHT IN')
+          loadFunction(user)
         }
       })
       .catch(err => {
@@ -82,11 +90,11 @@ var loadFunction = (user) => {
     .then(promiseResponse => {
       console.log('ALL PLAYLISTS HAVE BEEN PULLED', promiseResponse.length)
       var playlistPromises = []
-      promiseResponse.forEach(promise => {
-        playlistPromises = playlistPromises.concat(promise.data.items.map((item, i) => {
-          return Playlist.sync()
-          .then(() => {
-            Playlist.create({
+      Playlist.sync()
+      .then(() => {
+        promiseResponse.forEach(promise => {
+          playlistPromises = playlistPromises.concat(promise.data.items.map((item, i) => {
+            return Playlist.create({
               href: item.href,
               key: item.id,
               name: item.name,
@@ -96,39 +104,44 @@ var loadFunction = (user) => {
               uri: item.uri
             })
             .catch(err => {
-              console.log('Error creating playlist', err)
+              console.log('Error syncing item creation', err)
+            })
+          }))
+        })
+        // Once all the playlists have been stored, store each track
+        Promise.all(playlistPromises)
+        .then(playlistResponse => {
+          console.log('ALL PLAYLISTS HAVE BEEN CREATED', playlistResponse.length)
+          var totalTracks = 0;
+          var songPromises = [];
+          Playlist.findAll().then(items => {
+            console.log('THE LENGTH IS', items.length)
+            Track.sync().then(() => {
+              var ind = 0;
+              var interval = setInterval(() => {
+                if (ind >= items.length) {
+                  clearInterval(interval);
+                } else {
+                  item = items[ind]
+                  songSaverLoop(item, ind, user, totalTracks)
+                  ind = ind + 1;
+                }
+              }, 2000)
+            })
+            .catch(err => {
+              console.log('Error syncing track', err)
             })
           })
           .catch(err => {
-            console.log('Error syncing item creation', err)
+            console.log('Error finding all playlists', err)
           })
-        }))
-      })
-      // Once all the playlists have been stored, store each track
-      Promise.all(playlistPromises)
-      .then(playlistResponse => {
-        console.log('ALL PLAYLISTS HAVE BEEN CREATED', playlistResponse.length)
-        var totalTracks = 0;
-        var songPromises = [];
-        Playlist.findAll().then(items => {
-          console.log('THE LENGTH IS', items.length)
-          var ind = 0;
-          var interval = setInterval(() => {
-            if (ind >= items.length) {
-              clearInterval(interval);
-            } else {
-              item = items[ind]
-              songSaverLoop(item, ind, user, totalTracks)
-              ind = ind + 1;
-            }
-          }, 2000)
         })
         .catch(err => {
-          console.log('Error finding all playlists', err)
+          console.log('Error in playlist storing promise chain', err)
         })
       })
       .catch(err => {
-        console.log('Error in playlist storing promise chain', err)
+        console.log('ERRER!', err)
       })
     })
     .catch(err => {
@@ -139,7 +152,6 @@ var loadFunction = (user) => {
     console.log('Error fetching all playlists', err)
   })
 }
-
 
 var songSaverLoop = (item, ind, user, totalTracks) => {
   var offset2 = 0;
@@ -210,8 +222,8 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
         })
         var pos = (count * 100) + index + 1
         totalTracks = totalTracks + 1
-        Track.sync()
-        .then(() => {
+//        Track.sync()
+//        .then(() => {
           Track.create({
             added: track.added_at,
             album_type: track.track.album.album_type,
@@ -236,10 +248,10 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
           .catch(err => {
             console.log('Error creating track', err)
           })
-        })
-        .catch(err => {
-          console.log('Error syncing track', err)
-        })
+//        })
+//        .catch(err => {
+//          console.log('Error syncing track', err)
+//        })
       })
     } else {
       console.log('No total')
@@ -252,6 +264,6 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
 
 
 // CALL FUNCTION
-setTimeout(() => {
-  initiateLoad()
-}, 2000)
+// setTimeout(() => {
+//   initiateLoad()
+// }, 2000)
