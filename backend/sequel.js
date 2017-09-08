@@ -1,5 +1,9 @@
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize('postgresql://ben:Ymsd2017@127.0.0.1:5432/mydb')
+<<<<<<< HEAD
+// const sequelize = new Sequelize('postgres://127.0.0.1:5432/postgres')
+=======
+>>>>>>> bb1e911a7d3f492e2093243059b541346cdfaa35
 
 sequelize.authenticate()
 .then(() => {
