@@ -4,6 +4,7 @@ const sequelize = new Sequelize('postgresql://ben:Ymsd2017@127.0.0.1:5432/mydb')
 sequelize.authenticate()
 .then(() => {
   console.log('CONNECTION: Sequelize connection has been established successfully')
+//   Track.findAll().then(list => {console.log('L: ' + list.length)})
 })
 .catch(err => {
   console.error('ERROR: Unable to connect to the database:', err);

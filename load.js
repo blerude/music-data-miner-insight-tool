@@ -1,5 +1,3 @@
-// /tmp/crontab.0u4KLo/crontab 
-
 var axios = require('axios')
 var request = require('request'); // "Request" library
 var Sequelize = require('sequelize')
@@ -21,6 +19,7 @@ var initiateLoad = () => {
       // Find the user
       User.findOne().then(user => {
         if (user.expires < new Date().getTime()) {
+          console.log('REFRESHING...' + user)
           var refresh_token = user.refresh;
           var authOptions = {
             url: 'https://accounts.spotify.com/api/token',
@@ -41,6 +40,8 @@ var initiateLoad = () => {
 		console.log('REFRESHED')
                 loadFunction(saved)
               })
+            } else {
+              console.log('Error refreshing', response)
             }
           });
         } else {
@@ -90,10 +91,12 @@ var loadFunction = (user) => {
     .then(promiseResponse => {
       console.log('ALL PLAYLISTS HAVE BEEN PULLED', promiseResponse.length)
       var playlistPromises = []
+      var trackTotal = 0
       Playlist.sync()
       .then(() => {
         promiseResponse.forEach(promise => {
           playlistPromises = playlistPromises.concat(promise.data.items.map((item, i) => {
+            trackTotal = trackTotal + item.tracks.total
             return Playlist.create({
               href: item.href,
               key: item.id,
@@ -112,6 +115,7 @@ var loadFunction = (user) => {
         Promise.all(playlistPromises)
         .then(playlistResponse => {
           console.log('ALL PLAYLISTS HAVE BEEN CREATED', playlistResponse.length)
+          console.log('TRACK COUNT EQUALS ' + trackTotal)
           var totalTracks = 0;
           var songPromises = [];
           Playlist.findAll().then(items => {
