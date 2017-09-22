@@ -9,5 +9,5 @@ certain track on a playlist (is it the first song that people naturally click on
 therefore mostly ignored?) or the popularity of that track at a given point in time can tell these professionals
 just how to market their act, or whether they need to push for more space on the platform. 
 
-The engine is a work in progress--there are more features and functionalities to come. 
+The engine is not yet live and is a work in progress--there are more features and functionalities to come. 
 
