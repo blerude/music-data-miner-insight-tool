@@ -12,7 +12,7 @@ just how to market their act, or whether they need to push for more space on the
 The engine is not yet live and is a work in progress--there are more features and functionalities to come. 
 
 ### Key Scripts: 
-load.js: loads database through Spotify API and PostgreSQL calls
-server.js: routes for API authorization and database retrieval
-backend/sequel.js: SQL schemas
-frontend/components: folder containing frontend elements
+load.js: loads database through Spotify API and PostgreSQL calls <br/>
+server.js: routes for API authorization and database retrieval <br/>
+backend/sequel.js: SQL schemas <br/>
+frontend/components: folder containing frontend elements <br/>
