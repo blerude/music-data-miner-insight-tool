@@ -226,8 +226,6 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
         })
         var pos = (count * 100) + index + 1
         totalTracks = totalTracks + 1
-//        Track.sync()
-//        .then(() => {
           Track.create({
             added: track.added_at,
             album_type: track.track.album.album_type,
@@ -252,10 +250,6 @@ var songSaverRequest = (item, user, totalTracks, url, count) => {
           .catch(err => {
             console.log('Error creating track', err)
           })
-//        })
-//        .catch(err => {
-//          console.log('Error syncing track', err)
-//        })
       })
     } else {
       console.log('No total')

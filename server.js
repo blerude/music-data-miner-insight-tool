@@ -11,75 +11,20 @@ var cookieParser = require('cookie-parser');
 var client_id = process.env.SPOTIFY_ID; // Your client id
 var client_secret = process.env.SPOTIFY_SECRET; // Your secret
 var redirect_uri = 'http://45.55.197.135:80/callback'; // Your redirect uri
-// var redirect_uri = 'http://165.227.251.12:80/callback'; // Your redirect uri
 // var redirect_uri = 'http://localhost:3001/callback'
-// var redirect_uri = 'https://musicdataminer.herokuapp.com/callback' // Redirect on heroku
 
 var bodyParser = require('body-parser');
-var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-
-var localStorage = require('localStorage')
 
 var axios = require('axios')
 
 var Sequelize = require('sequelize')
 var { sequelize, User, Playlist, Track } = require('./backend/sequel.js')
 
-var mongoose = require('mongoose');
-mongoose.connection.on('connected', function() {
-  console.log('Connected to MongoDB!');
-});
-mongoose.connect(process.env.MONGODB_URI);
-
-var crypto = require('crypto');
-function hashPassword(password) {
-  var hash = crypto.createHash('bel3');
-  hash.update(password);
-  return hash.digest('hex');
-}
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static(__dirname + '/public'))
 .use(cookieParser());
-
-app.use(session({
-  secret: process.env.SECRET,
-  store: new MongoStore({mongooseConnection: mongoose.connection})
-}));
-
-passport.use(new LocalStrategy(
-  function(username, password, done) {
-    var hashedPassword = hashPassword(password);
-    User.findOne({username: username}, function(err, user) {
-      if (err) return done(err);
-      if (!user) return done(null, false, { message: 'Invalid Username.'});
-      if (user.password !== hashedPassword) return done(null, false, { message: 'Wrong Password.'});
-      return done(null, user);
-    })
-  })
-)
-
-passport.serializeUser(function(user, done) {
-  done(null, user._id);
-})
-
-passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
-    if (err) {
-      console.log('Error deserializing', err);
-    } else {
-      done(null, user);
-    }
-  })
-})
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.get('/', (request, response) => {
   response.sendFile(__dirname + 'public/index.html'); // For React/Redux
